@@ -16,6 +16,7 @@ type App struct {
 	ctx      context.Context
 	filePath string
 	mdParser goldmark.Markdown
+	isDirty  bool
 }
 
 func NewApp() *App {
@@ -31,7 +32,6 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// convertMarkdown converts a raw Markdown string into HTML using Goldmark
 func convertMarkdown(source string, parser goldmark.Markdown) string {
 	var buf bytes.Buffer
 	if err := parser.Convert([]byte(source), &buf); err != nil {
@@ -51,6 +51,19 @@ type FileResponse struct {
 }
 
 func (a *App) OpenFile() FileResponse {
+	if a.isDirty {
+		res, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.QuestionDialog,
+			Title:         "Unsaved Changes",
+			Message:       "You have unsaved changes. Opening a new file will discard them. Continue?",
+			Buttons:       []string{"Yes", "No"},
+			DefaultButton: "No",
+		})
+		if err != nil || res != "Yes" {
+			return FileResponse{Error: "Cancelled"}
+		}
+	}
+
 	path, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Open Markdown File",
 		Filters: []runtime.FileFilter{{DisplayName: "Markdown", Pattern: "*.md;*.txt"}},
@@ -63,6 +76,7 @@ func (a *App) OpenFile() FileResponse {
 		return FileResponse{Error: err.Error()}
 	}
 	a.filePath = path
+	a.isDirty = false
 	return FileResponse{Name: path, Content: string(content)}
 }
 
@@ -83,9 +97,32 @@ func (a *App) SaveFile(content string, saveAs bool) string {
 	if err != nil {
 		return err.Error()
 	}
+	a.isDirty = false
 	return "Saved: " + a.filePath
+}
+
+func (a *App) MarkDirty(dirty bool) {
+	a.isDirty = dirty
+}
+
+func (a *App) IsDirty() bool {
+	return a.isDirty
 }
 
 func (a *App) CloseApp() {
 	runtime.Quit(a.ctx)
+}
+
+func (a *App) ConfirmClose() bool {
+	if !a.isDirty {
+		return true
+	}
+	res, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+		Type:          runtime.QuestionDialog,
+		Title:         "Unsaved Changes",
+		Message:       "You have unsaved changes. Are you sure you want to close and discard them?",
+		Buttons:       []string{"Yes", "No"},
+		DefaultButton: "No",
+	})
+	return err == nil && res == "Yes"
 }
