@@ -14,15 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Pin Wails to a specific v2 release compatible with Go 1.25
-RUN go install github.com/wailsapp/wails/v2/cmd/wails@v2.10.1
+# Pin it also in go.mod
+RUN go install github.com/wailsapp/wails/v2/cmd/wails@v2.16.0
 
 WORKDIR /app
 COPY . .
 
 # Build production binary with stripped symbol tables and debug info (-ldflags="-s -w")
 RUN /go/bin/wails build -tags webkit2_41 -clean -s -ldflags="-s -w"
-
-
 
 # --- Stage 2: Optimized Self-Contained WebKit Runtime ---
 FROM debian:bookworm-slim
