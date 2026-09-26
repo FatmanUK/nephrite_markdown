@@ -2,14 +2,19 @@
 
 ## About
 
-This is the official Wails Vanilla template.
+I wanted a Markdown editor, but I hate WYSIWYG editors. There don't seem to be any edit/preview Markdown editors.
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found here: https://wails.io/docs/reference/project-config
+Then I thought: hang about, I've got LLMs and a Github account. Let's make one!
 
-## Live Development
+I've added a Makefile with the usual targets. Run `make build` and then `make install` with sudo to install traditionally.
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect to this in your browser, and you can call your Go code from devtools.
+We have pods! Run the latest image:
+`podman pull https://ghcr.io/fatmanuk/nephrite:latest`
 
-## Building
+## Robots
 
-To build a redistributable, production mode package, use `wails build`.
+Made entirely with Gemini. Gemini is fairly horrible to code with, but it kinda sorta works.
+
+My weekly Claude limit is maxed out and I'm a cheapskate, or I'd use that.
+
+ChatGPT's probably good but I don't have it set up yet.

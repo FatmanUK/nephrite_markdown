@@ -7,13 +7,13 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "Your Name",
-    "email": ""
+    "name": "Adam J Richardson",
+    "email": "fatman.uk@gmail.com"
   },
   "info": {
     "companyName": "",
     "productName": "nephrite",
-    "productVersion": "1.0.0",
+    "productVersion": "0.0.1",
     "copyright": "Copyright © 2026",
     "comments": "Markdown Editor"
   }
