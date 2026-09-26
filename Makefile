@@ -19,18 +19,22 @@ all: build
 build:
 	wails build $(BUILD_TAGS)
 
-## install: Install binary and desktop launcher entry to system
+## install: Install binary, desktop launcher entry, and icon to system
+## run as sudo, so not connected to build
 install:
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 0755 build/bin/$(BINARY_NAME) $(DESTDIR)$(BINDIR)/$(BINARY_NAME)
 	install -d $(DESTDIR)$(DESKTOPDIR)
 	install -m 0644 nephrite.desktop $(DESTDIR)$(DESKTOPDIR)/nephrite.desktop
+	install -d $(DESTDIR)$(DATADIR)/icons/hicolor/scalable/apps
+	install -m 0644 nephrite.svg $(DESTDIR)$(DATADIR)/icons/hicolor/scalable/apps/nephrite.svg
 	@which update-desktop-database >/dev/null 2>&1 && update-desktop-database $(DESTDIR)$(DESKTOPDIR) || true
 
 ## uninstall: Remove binary and desktop entry
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/$(BINARY_NAME)
 	rm -f $(DESTDIR)$(DESKTOPDIR)/nephrite.desktop
+	rm -f $(DESTDIR)$(DATADIR)/icons/hicolor/scalable/apps/nephrite.svg
 	@which update-desktop-database >/dev/null 2>&1 && update-desktop-database $(DESTDIR)$(DESKTOPDIR) || true
 
 ## dev: Run the application in live-reload development mode
