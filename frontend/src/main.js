@@ -37,10 +37,23 @@ document.getElementById('btn-close').addEventListener('click', () => {
 
 // Theme Toggle
 let isLight = false;
+const sunIcon = document.getElementById('theme-icon-sun');
+const moonIcon = document.getElementById('theme-icon-moon');
+const themeText = document.getElementById('theme-text');
+
 themeBtn.addEventListener('click', () => {
     isLight = !isLight;
     document.body.classList.toggle('light-theme', isLight);
-    themeBtn.innerText = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+    
+    if (isLight) {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'inline';
+        themeText.innerText = 'Dark Mode';
+    } else {
+        sunIcon.style.display = 'inline';
+        moonIcon.style.display = 'none';
+        themeText.innerText = 'Light Mode';
+    }
 });
 
 // Independent Font Scaling
