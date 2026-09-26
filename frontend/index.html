@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Nephrite</title>
+    <style>
+        :root {
+            --bg-toolbar: #24292e;
+            --text-toolbar: #ffffff;
+            --bg-editor: #1e1e1e;
+            --text-editor: #d4d4d4;
+            --border-editor: #333333;
+            --bg-preview: #ffffff;
+            --text-preview: #24292e;
+            --bg-code: #f6f8fa;
+            --border-preview: #dfe2e5;
+            --bg-statusbar: #1a1d20;
+            --text-statusbar: #a0a0a0;
+        }
+
+        body.light-theme {
+            --bg-toolbar: #f0f0f0;
+            --text-toolbar: #24292e;
+            --bg-editor: #ffffff;
+            --text-editor: #24292e;
+            --border-editor: #e1e4e8;
+            --bg-preview: #fafafa;
+            --text-preview: #24292e;
+            --bg-code: #eaecef;
+            --border-preview: #e1e4e8;
+            --bg-statusbar: #e5e5e5;
+            --text-statusbar: #444444;
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; overflow: hidden; }
+        .toolbar { padding: 10px 15px; background: var(--bg-toolbar); color: var(--text-toolbar); display: flex; gap: 8px; align-items: center; border-bottom: 1px solid var(--border-editor); }
+        .app-title { font-weight: bold; font-size: 14px; margin-right: 12px; }
+        
+        button { padding: 6px 12px; cursor: pointer; background: #fafbfc; border: 1px solid #d1d5da; border-radius: 4px; font-size: 13px; }
+        button:hover { background: #f3f4f6; }
+        .btn-danger { background: #e55353; color: white; border: none; margin-left: auto; }
+        .btn-danger:hover { background: #c93b3b; }
+        
+        /* Main Workspace Container */
+        .container { display: flex; flex: 1; height: calc(100vh - 80px); overflow: hidden; }
+        #editor { flex: 1; padding: 20px; font-family: 'Courier New', monospace; border: none; resize: none; outline: none; border-right: 1px solid var(--border-editor); font-size: 16px; background: var(--bg-editor); color: var(--text-editor); }
+        #preview { flex: 1; padding: 20px 40px; overflow-y: auto; font-size: 16px; line-height: 1.6; background: var(--bg-preview); color: var(--text-preview); }
+        
+        /* Bottom Status Bar */
+        .statusbar { 
+            height: 28px; 
+            background: var(--bg-statusbar); 
+            color: var(--text-statusbar); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px; 
+            font-size: 12px; 
+            border-top: 1px solid var(--border-editor); 
+        }
+
+        /* Rendered Markdown Styles */
+        #preview h1, #preview h2 { border-bottom: 1px solid var(--border-preview); padding-bottom: 0.3em; }
+        #preview code { background: var(--bg-code); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; }
+        #preview pre { background: var(--bg-code); padding: 16px; border-radius: 6px; overflow: auto; }
+        #preview pre code { background: none; padding: 0; }
+        #preview table { border-collapse: collapse; width: 100%; margin-bottom: 16px; }
+        #preview th, #preview td { border: 1px solid var(--border-preview); padding: 6px 13px; }
+        #preview th { background-color: var(--bg-code); }
+        #preview blockquote { border-left: 0.25em solid var(--border-preview); margin: 0; padding: 0 1em; color: #6a737d; }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="app-title">Nephrite</span>
+        <button id="btn-open">Open</button>
+        <button id="btn-save">Save</button>
+        <button id="btn-save-as">Save As</button>
+        <span style="border-left: 1px solid #555; height: 18px; margin: 0 6px;"></span>
+        <button id="btn-zoom-in-ed">Editor +</button>
+        <button id="btn-zoom-out-ed">Editor -</button>
+        <span style="border-left: 1px solid #555; height: 18px; margin: 0 6px;"></span>
+        <button id="btn-zoom-in-pr">Preview +</button>
+        <button id="btn-zoom-out-pr">Preview -</button>
+        <span style="border-left: 1px solid #555; height: 18px; margin: 0 6px;"></span>
+        <button id="btn-theme">☀️ Light Mode</button>
+        <button id="btn-close" class="btn-danger">✕ Close</button>
+    </div>
+    
+    <div class="container">
+        <textarea id="editor" placeholder="# Welcome to Nephrite&#10;&#10;Start typing here..."></textarea>
+        <div id="preview"></div>
+    </div>
+
+    <div class="statusbar">
+        <span id="status">Untitled</span>
+    </div>
+
+    <script src="./src/main.js" type="module"></script>
+</body>
+</html>
