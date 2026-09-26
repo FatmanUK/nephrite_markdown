@@ -24,7 +24,7 @@ test:
 
 ## pod-build: Build the Podman container image
 pod-build:
-	podman build -t $(BINARY_NAME):latest -f Containerfile .
+	podman build -t $(IMAGE):$(TAG) -f Containerfile .
 
 ## pod-push: Push to repo
 pod-push: pod-build
