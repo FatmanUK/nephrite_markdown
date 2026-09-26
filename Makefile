@@ -1,6 +1,6 @@
 BINARY_NAME   := nephrite
 BUILD_TAGS    := -tags webkit2_41
-IMAGE         := $(BINARY_NAME)
+IMAGE         := localhost/$(BINARY_NAME)
 TAG           ?= dev
 VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 PUBLISH_DATE  := $(shell date +%Y%m%d)
