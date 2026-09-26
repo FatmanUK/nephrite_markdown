@@ -1,4 +1,4 @@
-module wails-md-editor
+module nephrite
 
 go 1.25.0
 

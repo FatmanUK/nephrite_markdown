@@ -31,12 +31,17 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) RenderMarkdown(source string) string {
+// ConvertMarkdown converts a raw Markdown string into HTML using Goldmark
+func ConvertMarkdown(source string, parser goldmark.Markdown) string {
 	var buf bytes.Buffer
-	if err := a.mdParser.Convert([]byte(source), &buf); err != nil {
+	if err := parser.Convert([]byte(source), &buf); err != nil {
 		return err.Error()
 	}
 	return buf.String()
+}
+
+func (a *App) RenderMarkdown(source string) string {
+	return ConvertMarkdown(source, a.mdParser)
 }
 
 type FileResponse struct {
