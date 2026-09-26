@@ -1,18 +1,37 @@
 BINARY_NAME   := nephrite
 BUILD_TAGS    := -tags webkit2_41
 IMAGE         := localhost/$(BINARY_NAME)
+PUBLISH_DATE  := $(shell date +%Y%m%d)
+
 TAG           ?= dev
 VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-PUBLISH_DATE  := $(shell date +%Y%m%d)
 PUBLISH_IMAGE ?= ghcr.io/fatmanuk/$(BINARY_NAME)
+PREFIX        ?= /usr/local
+BINDIR        ?= $(PREFIX)/bin
+DATADIR       ?= $(PREFIX)/share
+DESKTOPDIR    ?= $(DATADIR)/applications
 
-.PHONY: all build dev test clean pod-build pod-push pod-run help
+.PHONY: all build dev test clean pod-build pod-push pod-run help install uninstall
 
 all: build
 
 ## build: Build the production binary
 build:
 	wails build $(BUILD_TAGS)
+
+## install: Install binary and desktop launcher entry to system
+install:
+	install -d $(DESTDIR)$(BINDIR)
+	install -m 0755 build/bin/$(BINARY_NAME) $(DESTDIR)$(BINDIR)/$(BINARY_NAME)
+	install -d $(DESTDIR)$(DESKTOPDIR)
+	install -m 0644 nephrite.desktop $(DESTDIR)$(DESKTOPDIR)/nephrite.desktop
+	@which update-desktop-database >/dev/null 2>&1 && update-desktop-database $(DESTDIR)$(DESKTOPDIR) || true
+
+## uninstall: Remove binary and desktop entry
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/$(BINARY_NAME)
+	rm -f $(DESTDIR)$(DESKTOPDIR)/nephrite.desktop
+	@which update-desktop-database >/dev/null 2>&1 && update-desktop-database $(DESTDIR)$(DESKTOPDIR) || true
 
 ## dev: Run the application in live-reload development mode
 dev:

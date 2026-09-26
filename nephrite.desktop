@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Nephrite
+GenericName=Markdown Editor
+Comment=Lightweight Markdown Editor with Live Preview
+Exec=nephrite %f
+Icon=nephrite
+Terminal=false
+Categories=Utility;TextEditor;Development;
+MimeType=text/markdown;text/plain;
+Keywords=markdown;editor;preview;nephrite;
