@@ -15,15 +15,40 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          fetch-tags: true
           submodules: false
 
-      - name: Build Wails
-        uses: dAppServer/wails-build-action@v2
-        id: build-win
+      - name: Setup Go
+        uses: actions/setup-go@v7
         with:
-          build-name: nephrite-win
-          build-platform: windows/amd64
-          package: true
           go-version: "1.25"
-          wails-version: "2.16.0"
+          cache: true
+
+      - name: Install Wails
+        shell: bash
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@v2.16.0
+
+      - name: Build Wails
+        working-directory: .
+        shell: bash
+        run: |
+          wails build \
+            --platform windows/amd64 \
+            -nsis \
+            -o nephrite-win
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Wails Build Windows nephrite-win
+          path: |
+            build/bin/nephrite-win.exe
+            build/bin/nephrite-win-amd64-installer.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            build/bin/nephrite-win.exe
+            build/bin/nephrite-win-amd64-installer.exe
