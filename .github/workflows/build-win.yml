@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -42,17 +42,24 @@ jobs:
           & $makensis /VERSION
           $nsisDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
-      - name: Build Wails
+      - name: Build App
         shell: bash
         run: |
           wails build \
             --platform windows/amd64 \
             -nsis \
-            -o nephrite-win.exe
+            -o nephrite.exe
 
-      - name: Upload build artifact
+      - name: Upload App
         uses: actions/upload-artifact@v7
         with:
-          name: Wails Build Windows nephrite-win.exe
-          path: build/bin/*
+          name: nephrite.exe
+          path: build/bin/nephrite.exe
+          if-no-files-found: error
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: nephrite-amd64-installer.exe
+          path: build/bin/nephrite-amd64-installer.exe
           if-no-files-found: error
