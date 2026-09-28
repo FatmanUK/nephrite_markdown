@@ -2,13 +2,14 @@ name: build-win
 
 on:
   push:
-    branches: [ "mother" ]
+    branches: ["mother"]
   pull_request:
-    branches: [ "mother" ]
+    branches: ["mother"]
 
 jobs:
   build-win:
     runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -18,12 +19,11 @@ jobs:
           submodules: false
 
       - name: Build Wails
-        uses: dAppServer/wails-build-action@v3
+        uses: dAppServer/wails-build-action@v2
         id: build-win
         with:
           build-name: nephrite-win
           build-platform: windows/amd64
           package: true
-          nsis: true
-          go-version: 1.25
-          wails-version: 2.16.0
+          go-version: "1.25"
+          wails-version: "2.16.0"
