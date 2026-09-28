@@ -4,7 +4,8 @@ IMAGE         := localhost/$(BINARY_NAME)
 PUBLISH_DATE  := $(shell date +%Y%m%d)
 
 TAG           ?= dev
-VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+VERSION       ?= $(shell (echo dev ; git tag) | tail -n1)
+VERDESC       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 PUBLISH_IMAGE ?= ghcr.io/fatmanuk/$(BINARY_NAME)
 PREFIX        ?= /usr/local
 BINDIR        ?= $(PREFIX)/bin
@@ -55,6 +56,8 @@ pod-push: pod-build
 	podman push $(PUBLISH_IMAGE):latest
 	podman tag $(IMAGE):$(TAG) $(PUBLISH_IMAGE):$(VERSION)
 	podman push $(PUBLISH_IMAGE):$(VERSION)
+	podman tag $(IMAGE):$(TAG) $(PUBLISH_IMAGE):$(VERDESC)
+	podman push $(PUBLISH_IMAGE):$(VERDESC)
 	podman tag $(IMAGE):$(TAG) $(PUBLISH_IMAGE):$(PUBLISH_DATE)
 	podman push $(PUBLISH_IMAGE):$(PUBLISH_DATE)
 	podman tag $(IMAGE):$(TAG) $(PUBLISH_IMAGE):$(TAG)
