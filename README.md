@@ -1,5 +1,9 @@
 # nephrite_markdown
 
+[![build](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/build.yml/badge.svg?branch=mother)](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/build.yml)
+[![push](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/push.yml/badge.svg?branch=mother)](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/push.yml)
+[![build-win](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/build-win.yml/badge.svg?branch=mother)](https://github.com/FatmanUK/nephrite_markdown/actions/workflows/build-win.yml)
+
 ## About
 
 I wanted a Markdown editor, but I hate WYSIWYG editors. There don't seem to be any edit/preview Markdown editors.
