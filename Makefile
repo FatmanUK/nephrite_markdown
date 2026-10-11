@@ -12,7 +12,7 @@ BINDIR        ?= $(PREFIX)/bin
 DATADIR       ?= $(PREFIX)/share
 DESKTOPDIR    ?= $(DATADIR)/applications
 
-.PHONY: all build dev test clean pod-build pod-push pod-run help install uninstall frontend-dist
+.PHONY: all build dev test clean pod-build pod-push pod-run help install uninstall
 
 all: build
 
@@ -43,12 +43,8 @@ dev:
 	wails dev $(BUILD_TAGS)
 
 ## test: Run unit tests
-test: frontend-dist
+test:
 	go test -v ./...
-
-## frontend-dist: Build frontend assets (required by the go:embed directive in main.go)
-frontend-dist:
-	cd frontend && npm ci && npm run build
 
 ## pod-build: Build the Podman container image
 pod-build:
