@@ -1,4 +1,4 @@
-import { RenderMarkdown, OpenFile, SaveFile, CloseApp, MarkDirty, ConfirmClose } from '../wailsjs/go/main/App';
+import { RenderMarkdown, OpenFile, SaveFile, CloseApp, MarkDirty, ConfirmClose, LoadPreferences, SavePreferences, GetInitialFile } from '../wailsjs/go/main/App';
 
 const editor = document.getElementById('editor');
 const preview = document.getElementById('preview');
@@ -34,6 +34,119 @@ function setDirty(dirty) {
     updateStatus(dirty ? 'Unsaved changes' : 'Ready');
 }
 
+function currentTheme() {
+    return document.body.classList.contains('light-theme') ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+    const isLight = theme === 'light';
+    document.body.classList.toggle('light-theme', isLight);
+    themeIconSun.style.display = isLight ? 'none' : 'inline';
+    themeIconMoon.style.display = isLight ? 'inline' : 'none';
+    themeText.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+}
+
+function savePreferences() {
+    SavePreferences({
+        theme: currentTheme(),
+        editorFontSize,
+        previewFontSize,
+    });
+}
+
+async function loadPreferences() {
+    const prefs = await LoadPreferences();
+    applyTheme(prefs.theme);
+    editorFontSize = prefs.editorFontSize || editorFontSize;
+    previewFontSize = prefs.previewFontSize || previewFontSize;
+    editor.style.fontSize = `${editorFontSize}px`;
+    preview.style.fontSize = `${previewFontSize}px`;
+}
+
+async function loadFileIntoEditor(name, content, statusMessage) {
+    editor.value = content;
+    currentFilePath = name;
+    isDirty = false;
+    MarkDirty(false);
+    const html = await RenderMarkdown(editor.value);
+    preview.innerHTML = html;
+    updateStatus(statusMessage);
+}
+
+async function loadInitialFile() {
+    const res = await GetInitialFile();
+    if (res.Name) {
+        await loadFileIntoEditor(res.Name, res.Content, 'Loaded');
+    }
+}
+
+async function doSave(saveAs) {
+    const result = await SaveFile(editor.value, saveAs);
+    if (result.startsWith('Saved:')) {
+        setDirty(false);
+        currentFilePath = result.replace('Saved: ', '');
+        updateStatus('Saved');
+    }
+}
+
+function zoomBoth(direction) {
+    editorFontSize = Math.max(10, editorFontSize + direction * 2);
+    previewFontSize = Math.max(10, previewFontSize + direction * 2);
+    editor.style.fontSize = `${editorFontSize}px`;
+    preview.style.fontSize = `${previewFontSize}px`;
+    savePreferences();
+}
+
+function duplicateLineOrSelection() {
+    editor.focus();
+    const { selectionStart, selectionEnd, value } = editor;
+
+    if (selectionStart !== selectionEnd) {
+        const selected = value.slice(selectionStart, selectionEnd);
+        editor.setSelectionRange(selectionEnd, selectionEnd);
+        document.execCommand('insertText', false, selected);
+        return;
+    }
+
+    let lineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+    let lineEnd = value.indexOf('\n', selectionStart);
+    if (lineEnd === -1) {
+        lineEnd = value.length;
+    }
+    const line = value.slice(lineStart, lineEnd);
+    editor.setSelectionRange(lineEnd, lineEnd);
+    document.execCommand('insertText', false, '\n' + line);
+}
+
+window.addEventListener('keydown', (e) => {
+    if (!e.ctrlKey) {
+        return;
+    }
+    const key = e.key.toLowerCase();
+
+    if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        editor.focus();
+        document.execCommand('undo');
+    } else if (key === 'y') {
+        e.preventDefault();
+        editor.focus();
+        document.execCommand('redo');
+    } else if (key === 'd') {
+        e.preventDefault();
+        duplicateLineOrSelection();
+    } else if (key === 's') {
+        e.preventDefault();
+        doSave(false);
+    } else if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        zoomBoth(1);
+    } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        zoomBoth(-1);
+    }
+});
+
 // Live Markdown Preview & Dirty Check
 editor.addEventListener('input', async () => {
     if (!isDirty) {
@@ -57,35 +170,15 @@ btnOpen.addEventListener('click', async () => {
     }
 
     if (res.Content !== undefined || res.content !== undefined) {
-        editor.value = res.Content ?? res.content;
-        currentFilePath = res.Name ?? res.name;
-        isDirty = false;
-        MarkDirty(false);
-        const html = await RenderMarkdown(editor.value);
-        preview.innerHTML = html;
-        updateStatus('Loaded');
+        await loadFileIntoEditor(res.Name ?? res.name, res.Content ?? res.content, 'Loaded');
     }
 });
 
 // Save File
-btnSave.addEventListener('click', async () => {
-    const result = await SaveFile(editor.value, false);
-    if (result.startsWith('Saved:')) {
-        setDirty(false);
-        currentFilePath = result.replace('Saved: ', '');
-        updateStatus('Saved');
-    }
-});
+btnSave.addEventListener('click', () => doSave(false));
 
 // Save As
-btnSaveAs.addEventListener('click', async () => {
-    const result = await SaveFile(editor.value, true);
-    if (result.startsWith('Saved:')) {
-        setDirty(false);
-        currentFilePath = result.replace('Saved: ', '');
-        updateStatus('Saved');
-    }
-});
+btnSaveAs.addEventListener('click', () => doSave(true));
 
 // Close Application Button
 btnClose.addEventListener('click', async () => {
@@ -97,39 +190,38 @@ btnClose.addEventListener('click', async () => {
 
 // Theme Toggle
 btnTheme.addEventListener('click', () => {
-    const isLight = document.body.classList.toggle('light-theme');
-    if (isLight) {
-        themeIconSun.style.display = 'none';
-        themeIconMoon.style.display = 'inline';
-        themeText.textContent = 'Dark Mode';
-    } else {
-        themeIconSun.style.display = 'inline';
-        themeIconMoon.style.display = 'none';
-        themeText.textContent = 'Light Mode';
-    }
+    applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
+    savePreferences();
 });
 
 // Font Size Controls
 btnZoomInEd.addEventListener('click', () => {
     editorFontSize += 2;
     editor.style.fontSize = `${editorFontSize}px`;
+    savePreferences();
 });
 
 btnZoomOutEd.addEventListener('click', () => {
     if (editorFontSize > 10) {
         editorFontSize -= 2;
         editor.style.fontSize = `${editorFontSize}px`;
+        savePreferences();
     }
 });
 
 btnZoomInPr.addEventListener('click', () => {
     previewFontSize += 2;
     preview.style.fontSize = `${previewFontSize}px`;
+    savePreferences();
 });
 
 btnZoomOutPr.addEventListener('click', () => {
     if (previewFontSize > 10) {
         previewFontSize -= 2;
         preview.style.fontSize = `${previewFontSize}px`;
+        savePreferences();
     }
 });
+
+loadPreferences();
+loadInitialFile();
